@@ -1,0 +1,12 @@
+sequenceDiagram
+  participant browser
+  participant server
+
+  browser-->>server: POST http://studies.cs.helsinki.fi/exampleapp/new_note_spa
+  activate server
+  server-->browser: app/json
+  deactivate server
+
+  Note right of browser: browser sends new_note in json format.
+
+  Note left of server: server confirms the new_note creaton  with 201 Created

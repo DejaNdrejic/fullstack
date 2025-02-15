@@ -1,0 +1,28 @@
+sequenceDiagram
+  browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/spa  
+  activate server  
+  server-->>browser: HTML document  
+  deactivate server  
+
+  Note right of browser: load the page by fetching HTML  
+
+  browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/main.css  
+  activate server  
+  server-->>browser: the css file  
+  deactivate server  
+
+  Note right of browser: apply styles with CSS file  
+  
+  browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/spa.js  
+  activate server  
+  server-->>browser: the javascript file  
+  deactivate server  
+
+  Note right of browser: fetch/execute JavaScript code  
+
+  browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/data.json  
+  activate server  
+  server-->>browser: the raw data file  
+  deactivate server  
+
+  Note right of browser: get raw data json file with notes 
