@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const url='http://localhost:3001/api/persons'
+const url='/api/persons'
 
 function addPeople(newPeople){
   const request = axios.post(url, newPeople)
