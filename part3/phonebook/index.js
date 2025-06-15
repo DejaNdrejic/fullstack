@@ -1,6 +1,8 @@
+require('dotenv').config()
 const express = require ('express')
 const app = express()
 const cors = require('cors')
+const Person = require('./models/mango.js')
 app.use(express.static('dist'))
 app.use(express.json())
 app.use(cors())
@@ -42,7 +44,9 @@ let persons = [
 
 // get all entries
 app.get('/api/persons', (req,res) => {
-  res.json(persons)
+  Person.find({}).then(persons => {
+    res.json(persons)
+  })
 })
 
 // get length and req time
@@ -58,12 +62,9 @@ app.get('/info', (req,res) => {
 
 // get single entry
 app.get('/api/persons/:id', (req,res) => {
-  const id = req.params.id
-  const entry = persons.find(e => e.id === id)
-  if (entry) {
-    res.json(entry)
-  } else { res.status('404').end}
-
+  Person.findById(req.params.id).then(p => {
+    res.json(p)
+  })
 })
 
 // delete single entry
@@ -82,24 +83,19 @@ app.post('/api/persons', (req,res) => {
   }
   if (!body.number) {
     return res.status(400).json({
-      error: 'number empty'})
+      error: 'number empty'
+    })
   }
-  if (persons.some(p => p.name === body.name)) {
-    return res.status(400).json({
-      error: 'name already in the phonebook'})
-  }
-  const  newId = Math.floor(Math.random() * (1000000 - 0 + 1) + 0)
-  console.log(newId)
-  const entry = {
-    id: newId,
+  const entry = new Person ({
     name: body.name,
     number: body.number
-  }
-  persons = persons.concat(entry)
-  res.json(entry)
+  })
+  entry.save().then(saved => {
+    res.json(saved)
+  })
 })
 
-const PORT = process.env.PORT || 3001 
+const PORT = process.env.PORT 
 app.listen(PORT, () => {
   console.log(`Server running on ${PORT}`)
 })
