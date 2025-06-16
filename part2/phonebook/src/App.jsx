@@ -50,7 +50,7 @@ const App = () => {
         })
         .catch((error) => {
           setIsOk(false)
-          newMessage(`Information of ${newPeople.name} has already been removed from server`)
+          newMessage(error.response?.data?.error || `Information of ${newPeople.name} has already been removed from server`)
         })
       }
     } else {
@@ -65,7 +65,7 @@ const App = () => {
         })
         .catch((error) => {
           setIsOk(false)
-          newMessage(`Error: ${error.response.data.error}`)
+          newMessage(error.response?.data?.error ||`Error: ${error.response.data.error}`)
         })
     }
   }
@@ -83,7 +83,7 @@ const App = () => {
         })
         .catch((error) => {
             setIsOk(false)
-            newMessage(`That persons is not in the phonebook`)
+            newMessage(error.response?.data?.error ||`That persons is not in the phonebook`)
         })
     }
   }
