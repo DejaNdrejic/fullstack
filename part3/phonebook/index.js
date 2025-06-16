@@ -85,14 +85,15 @@ app.put('/api/persons/:id', (req,res) => {
   Person.findByIdAndUpdate(
     req.params.id,
     { name, number },
-    {new: true, context: 'query'}
+    {new: true, runValidators: true, context: 'query'}
   )
   .then(updated => {
-    if (updated) {
+    if (!updated) {
+      return res.status(404).end() 
       res.json(updated)
-    } else { res.status(404).end()}
+    }
   })
-
+  .catch(err => next(err))
 })
 
 // middleware for handling unsuported routes
