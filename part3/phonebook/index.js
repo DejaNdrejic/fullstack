@@ -50,9 +50,9 @@ app.get('/api/persons/:id', (req,res,next) => {
 })
 
 // delete single entry
-app.delete('/api/persons/:id', (req,res) => {
+app.delete('/api/persons/:id', (req,res,next) => {
   Person.findByIdAndDelete(req.params.id)
-    .then(res => {
+    .then(result => {
       res.status(204).end()
     })
     .catch(err => next(err))
@@ -70,13 +70,29 @@ app.post('/api/persons', async (req,res) => {
   if (contact) {
   //update
     contact.number = number
-    await contact.save()
-        res.json(contact)
+    const updated = await contact.save()
+        res.json(updated)
   } else {
     //create new
     contact = await Person.create ({name, number })
       res.json(contact)
     }
+})
+
+// update entry
+app.put('/api/persons/:id', (req,res) => {
+  const {name, number} = req.body
+  Person.findByIdAndUpdate(
+    req.params.id,
+    { name, number },
+    {new: true, context: 'query'}
+  )
+  .then(updated => {
+    if (updated) {
+      res.json(updated)
+    } else { res.status(404).end()}
+  })
+
 })
 
 // middleware for handling unsuported routes
