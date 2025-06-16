@@ -3,6 +3,8 @@ const express = require ('express')
 const app = express()
 const cors = require('cors')
 const Person = require('./models/mango.js')
+const router = express.Router()
+
 app.use(express.static('dist'))
 app.use(express.json())
 app.use(cors())
@@ -19,28 +21,6 @@ morgan.token('post-data', (req) => {
 app.use(morgan('tiny'))
 app.use(morgan(':method :url :status :response-time ms :post-data'))
 
-let persons = [
-    { 
-      "id": "1",
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": "2",
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": "3",
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": "4",
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
 
 // get all entries
 app.get('/api/persons', (req,res) => {
@@ -58,44 +38,70 @@ app.get('/info', (req,res) => {
       ${dateNow.toString()}<br>
     </div>
     `)
-})
-
-// get single entry
-app.get('/api/persons/:id', (req,res) => {
-  Person.findById(req.params.id).then(p => {
+  Persons.find({}).then(p => {
     res.json(p)
   })
 })
 
+// get single entry
+app.get('/api/persons/:id', (req,res,next) => {
+  Person.findById(req.params.id)
+    .then(p => {
+    res.json(p)
+  })
+  .catch(err => next(err))
+})
+
 // delete single entry
 app.delete('/api/persons/:id', (req,res) => {
-  const id = req.params.id
-  persons = persons.filter(e => e.id !== id)
-  res.status(204).end()
+  Person.findByIdAndDelete(req.params.id)
+    .then(res => {
+      res.status(204).end()
+    })
+    .catch(err => next(err))
 })
 
 // add new entry
-app.post('/api/persons', (req,res) => {
-  const body = req.body
-  if (!body.name) {
+// if contact exists update it
+router.post('/api/persons', async (req,res) => {
+  const {name, number} = req.body
+  if (!name || !number) {
     return res.status(400).json({
-      error: 'name empty'})
+      error: 'name and number required'})
   }
-  if (!body.number) {
-    return res.status(400).json({
-      error: 'number empty'
-    })
-  }
-  const entry = new Person ({
-    name: body.name,
-    number: body.number
-  })
-  entry.save().then(saved => {
-    res.json(saved)
-  })
+  let contact = await Person.findOne({name})
+  if (contact) {
+  //update
+    contact.number = number
+    await note.save()
+        res.json(updated)
+  } else {
+    //create new
+    contact = await Person.create ({name, number })
+      res.json(contact)
+    }
 })
+
+// middleware for handling unsuported routes
+// must be last loaded(before error handling)
+const unknownEnd = (req,res) => {
+  res.status(404).send({err: 'unknown endpoint'})
+}
+app.use(unknownEnd)
+
+// invalid id error handling
+const errorHandle = (err, req, res, next) => {
+  if (err.name === 'CastError') {
+    return res.status(400).send({err: 'malformatted id'})
+  }
+  next(err)
+}
+// has to be last loaded
+app.use(errorHandle)
 
 const PORT = process.env.PORT 
 app.listen(PORT, () => {
   console.log(`Server running on ${PORT}`)
 })
+
+
