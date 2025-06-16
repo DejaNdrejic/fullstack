@@ -60,12 +60,9 @@ app.delete('/api/persons/:id', (req,res,next) => {
 
 // add new entry
 // if contact exists update it
-app.post('/api/persons', async (req,res) => {
+app.post('/api/persons', async (req,res,next) => {
   const {name, number} = req.body
-  if (!name || !number) {
-    return res.status(400).json({
-      error: 'name and number required'})
-  }
+  try {
   let contact = await Person.findOne({name})
   if (contact) {
   //update
@@ -77,6 +74,9 @@ app.post('/api/persons', async (req,res) => {
     contact = await Person.create ({name, number })
       res.json(contact)
     }
+  } catch (err) {
+    next(err)
+  }
 })
 
 // update entry
@@ -106,6 +106,8 @@ app.use(unknownEnd)
 const errorHandle = (err, req, res, next) => {
   if (err.name === 'CastError') {
     return res.status(400).send({err: 'malformatted id'})
+  } else if (err.name === "ValidationError") {
+    return res.status(400).send({err: err.message})
   }
   next(err)
 }

@@ -65,7 +65,7 @@ const App = () => {
         })
         .catch((error) => {
           setIsOk(false)
-          newMessage(`Error`)
+          newMessage(`Error: ${error.response.data.error}`)
         })
     }
   }
