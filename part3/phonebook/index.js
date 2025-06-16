@@ -3,7 +3,6 @@ const express = require ('express')
 const app = express()
 const cors = require('cors')
 const Person = require('./models/mango.js')
-const router = express.Router()
 
 app.use(express.static('dist'))
 app.use(express.json())
@@ -24,23 +23,21 @@ app.use(morgan(':method :url :status :response-time ms :post-data'))
 
 // get all entries
 app.get('/api/persons', (req,res) => {
-  Person.find({}).then(persons => {
-    res.json(persons)
+  Person.find({}).then(p => {
+    res.json(p)
   })
 })
 
 // get length and req time
-app.get('/info', (req,res) => {
-  const dateNow = new Date()
+app.get('/info', async (req,res) => {
+  const dateNow = await new Date()
+  const dbLength = await Person.countDocuments({})
   res.send(`
     <div>
-      Phonebook has info for ${persons.length} people<br>
+      Phonebook has info for ${dbLength} people<br>
       ${dateNow.toString()}<br>
     </div>
     `)
-  Persons.find({}).then(p => {
-    res.json(p)
-  })
 })
 
 // get single entry
@@ -63,7 +60,7 @@ app.delete('/api/persons/:id', (req,res) => {
 
 // add new entry
 // if contact exists update it
-router.post('/api/persons', async (req,res) => {
+app.post('/api/persons', async (req,res) => {
   const {name, number} = req.body
   if (!name || !number) {
     return res.status(400).json({
@@ -73,8 +70,8 @@ router.post('/api/persons', async (req,res) => {
   if (contact) {
   //update
     contact.number = number
-    await note.save()
-        res.json(updated)
+    await contact.save()
+        res.json(contact)
   } else {
     //create new
     contact = await Person.create ({name, number })
