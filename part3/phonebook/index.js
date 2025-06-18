@@ -15,7 +15,7 @@ morgan.token('post-data', (req) => {
   if (req.method === 'POST') {
     return JSON.stringify(req.body)
   }
-  return "-"
+  return '-'
 })
 app.use(morgan('tiny'))
 app.use(morgan(':method :url :status :response-time ms :post-data'))
@@ -44,15 +44,15 @@ app.get('/info', async (req,res) => {
 app.get('/api/persons/:id', (req,res,next) => {
   Person.findById(req.params.id)
     .then(p => {
-    res.json(p)
-  })
-  .catch(err => next(err))
+      res.json(p)
+    })
+    .catch(err => next(err))
 })
 
 // delete single entry
 app.delete('/api/persons/:id', (req,res,next) => {
   Person.findByIdAndDelete(req.params.id)
-    .then(result => {
+    .then(res => {
       res.status(204).end()
     })
     .catch(err => next(err))
@@ -61,17 +61,17 @@ app.delete('/api/persons/:id', (req,res,next) => {
 // add new entry
 // if contact exists update it
 app.post('/api/persons', async (req,res,next) => {
-  const {name, number} = req.body
+  const { name, number } = req.body
   try {
-  let contact = await Person.findOne({name})
-  if (contact) {
-  //update
-    contact.number = number
-    const updated = await contact.save()
-        res.json(updated)
-  } else {
+    let contact = await Person.findOne({ name })
+    if (contact) {
+      //update
+      contact.number = number
+      const updated = await contact.save()
+      res.json(updated)
+    } else {
     //create new
-    contact = await Person.create ({name, number })
+      contact = await Person.create ({ name, number })
       res.json(contact)
     }
   } catch (err) {
@@ -81,41 +81,41 @@ app.post('/api/persons', async (req,res,next) => {
 
 // update entry
 app.put('/api/persons/:id', (req,res,next) => {
-  const {name, number} = req.body
+  const { name, number } = req.body
   Person.findByIdAndUpdate(
     req.params.id,
     { name, number },
-    {new: true, runValidators: true, context: 'query'}
+    { new: true, runValidators: true, context: 'query' }
   )
-  .then(updated => {
-    if (!updated) {
-      return res.status(404).end() 
-    }
+    .then(updated => {
+      if (!updated) {
+        return res.status(404).end()
+      }
       res.json(updated)
-  })
-  .catch(err => next(err))
+    })
+    .catch(err => next(err))
 })
 
 // middleware for handling unsuported routes
 // must be last loaded(before error handling)
 const unknownEnd = (req,res) => {
-  res.status(404).send({err: 'unknown endpoint'})
+  res.status(404).send({ err: 'unknown endpoint' })
 }
 app.use(unknownEnd)
 
 // invalid id error handling
 const errorHandle = (err, req, res, next) => {
   if (err.name === 'CastError') {
-    return res.status(400).json({error: 'malformatted id'})
-  } else if (err.name === "ValidationError") {
-    return res.status(400).json({error: err.message})
+    return res.status(400).json({ error: 'malformatted id' })
+  } else if (err.name === 'ValidationError') {
+    return res.status(400).json({ error: err.message })
   }
   next(err)
 }
 // has to be last loaded
 app.use(errorHandle)
 
-const PORT = process.env.PORT 
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on ${PORT}`)
 })
