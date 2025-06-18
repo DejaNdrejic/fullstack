@@ -80,7 +80,7 @@ app.post('/api/persons', async (req,res,next) => {
 })
 
 // update entry
-app.put('/api/persons/:id', (req,res) => {
+app.put('/api/persons/:id', (req,res,next) => {
   const {name, number} = req.body
   Person.findByIdAndUpdate(
     req.params.id,
@@ -90,8 +90,8 @@ app.put('/api/persons/:id', (req,res) => {
   .then(updated => {
     if (!updated) {
       return res.status(404).end() 
-      res.json(updated)
     }
+      res.json(updated)
   })
   .catch(err => next(err))
 })
