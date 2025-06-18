@@ -65,7 +65,7 @@ const App = () => {
         })
         .catch((error) => {
           setIsOk(false)
-          newMessage(error.response?.data?.error ||`Error: ${error.response.data.error}`)
+          newMessage(error.response?.data?.error ||'Validation error')
         })
     }
   }
