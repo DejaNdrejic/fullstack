@@ -46,16 +46,16 @@ test('HTTP POST req to /api/blogs => blog post, saved to DB and blogs.length ===
     title: 'newBlogPost',
     author: 'Unknown',
     url: 'https://whoami.???',
+    likes: 1
   }
-  await api
+  const response = await api
     .post('/api/blogs')
     .send(newPost)
     .expect(201)
     .expect('Content-Type', /application\/json/)
-  const response = await api.get('/api/blogs')
-  const title = response.body.map(r => r.title)
-  assert.strictEqual(response.body.length, initialBlogs.length + 1)
-  assert(title.includes('newBlogPost'))
+  assert.strictEqual(response.body.title, 'newBlogPost')
+  const blogs = await Blog.find({})
+  assert.strictEqual(blogs.length, initialBlogs.length + 1)
 })
 
 test('if likes property missing defaults to 0', async () => {
@@ -98,7 +98,7 @@ test('in HTTP POST when title or url missing throw 400', async () => {
 
 test('deleting blog', async () => {
   const initial = await api.get('/api/blogs')
-  const toDelete = inital.body[0]
+  const toDelete = initial.body[0]
   await api
     .delete(`/api/blogs/${toDelete.id}`)
     .expect(204)
@@ -107,9 +107,9 @@ test('deleting blog', async () => {
 })
 
 test('updating blog', async () => { 
-  const inital = api.get('/api/blogs')
-  const toUpdate = inital.body[0]
-  const changedLikes = {likes: 100}
+  const initial = await api.get('/api/blogs')
+  const toUpdate = initial.body[0]
+  const changedLikes = { likes: 100 }
   const response = await api
     .put(`/api/blogs/${toUpdate.id}`)
     .send(changedLikes)

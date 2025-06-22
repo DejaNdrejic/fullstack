@@ -4,20 +4,29 @@ const Blog = require('../models/blog')
 
 // GET all
 blogRouter.get('/', async (request, response) => {
- await Blog.find({}).then((blogs) => {
+ const blogs = await Blog.find({})
     response.json(blogs)
-  })
 })
 
 // POST new
-blogRouter.post('/', async (request, response) => {
-  const blog = await new Blog(request.body)
-  if(!blog.title || !blog.url) {
-    return response.status(400).json('Bad response')
+blogRouter.post('/', async (request, response, next) => {
+  try {
+      const {title, author, url, likes } = request.body
+      if(!blog.title || !blog.url) {
+      return response.status(400).json({error: 'Bad response'})
+    }
+    const blog = new Blog({
+      title,
+      author: author || 'Unknown',
+      url,
+      likes: likes || 0
+    });
+
+    const saved = await blog.save()
+    response.status(201).json(saved)
+  } catch (error) {
+    next(error)
   }
-  blog.save().then((result) => {
-    response.status(201).json(result)
-  })
 })
 
 // DELETE single
@@ -36,8 +45,7 @@ blogRouter.delete('/:id', async (request,response, next)  => {
 // UPDATE post
 blogRouter.put('/:id', async (request, response, next) => {
   try {
-  const likes = request.body.likes
-  const updated = await Blog.findByIdAndUpdate(
+    const updated = await Blog.findByIdAndUpdate(
     request.params.id,
     {likes: request.body.likes},
     {new: true, runValidators: true, context: 'query'})
