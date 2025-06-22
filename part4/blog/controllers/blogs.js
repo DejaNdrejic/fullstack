@@ -12,7 +12,7 @@ blogRouter.get('/', async (request, response) => {
 blogRouter.post('/', async (request, response, next) => {
   try {
       const {title, author, url, likes } = request.body
-      if(!blog.title || !blog.url) {
+      if(!title || !url) {
       return response.status(400).json({error: 'Bad response'})
     }
     const blog = new Blog({
