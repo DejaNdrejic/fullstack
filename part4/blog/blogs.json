@@ -1,0 +1,15 @@
+[
+  {
+    "title": "First Blog",
+    "author": "John Doe",
+    "url": "https://example.com/first",
+    "likes": 5
+  },
+  {
+    "title": "Second Blog",
+    "content": "Another great post",
+    "author": "Jane Smith",
+    "url": "https://example.com/second",
+    "likes": 10
+  }
+]
